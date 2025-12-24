@@ -1,0 +1,10 @@
+/* Main stylesheet - imports all component styles */
+@import url('styles/reset.css');
+@import url('styles/variables.css');
+@import url('styles/layout.css');
+@import url('styles/logo.css');
+@import url('styles/header.css');
+@import url('styles/footer.css');
+@import url('styles/content.css');
+@import url('styles/assignments.css');
+@import url('styles/coursework.css');

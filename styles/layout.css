@@ -1,0 +1,50 @@
+/* Layout - Grid structure and container */
+html {
+    width: 100%;
+}
+
+body {
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    min-height: 100vh;
+    width: 100%;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas: 
+        "header"
+        "main"
+        "footer";
+
+}
+
+.container {
+    width: 100%;
+   
+    padding: 0 20px;
+    scrollbar-gutter: stable;
+}
+
+.main {
+    grid-area: main;
+    display: grid;
+    grid-template-rows: auto 1fr;
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0 15px;
+    }
+}
+
+@media print {
+    .header,
+    .footer,
+    .nav {
+        display: none;
+    }
+
+    .main {
+        padding: 0;
+    }
+}
+
