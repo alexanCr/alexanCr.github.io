@@ -3,8 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Задание 2: Рисунок CSS. | Веб-разработка</title>
+    <title>Задание 4: DOM (заочники). 2025 | Веб-разработка</title>
     <link rel="stylesheet" href="../styles.css" />
+    <style>
+      iframe {
+        height: 50vh;
+        width: 100%;
+      }
+    </style>
   </head>
   <body data-page="assignments">
     <header class="header">
@@ -46,30 +52,33 @@
     <main class="main">
       <section class="content-section">
         <div class="container">
-          <h1 class="page-title">Задание 2: Рисунок CSS.</h1>
+          <h1 class="page-title">Задание 4: DOM (заочники). 2025.</h1>
 
           <article class="main-article">
             <h2>Описание задания</h2>
             <p>
-              Создать рисунки, с помощью стилевой таблицы pic.css. Размер
-              200х200px. Вариант 1
+              Существует 2 массива: латинских высказываний и их переводов,
+              можете добавить свои. • "Consuetudo est altera natura" "Привычка -
+              вторая натура" • "Nota bene" "Заметьте хорошо!" • "Nulla calamitas
+              sola" "Беда не приходит одна" • "Per aspera ad astra" "Через
+              тернии к звёздам" Создайте два класса class1 и class2. В них
+              задайте два разных цвета фона. При каждом четном нажатии на кнопку
+              выводится фраза с применением класса class1, при нечетном class2.
+              Фразы выводятся в случайном, не повторяющемся порядке. Когда фразы
+              заканчиваются, то выводится alert с фразой "Фразы закончились". По
+              нажатию на кнопку "Перекрасить" у всех четных строк изменяется
+              начертание на полужирное.
             </p>
 
-            <div class="image-container">
-              <img
-                src="../images/as2.png"
-                alt="Рисунок 1"
-                class="content-image"
-              />
-            </div>
+            <p>
+              На странице в части aside создать нумерованный список. По нажатию
+              на кнопку "Создать" в этом тэге фраза выводится в виде элемента
+              многоуровневого списка.
+            </p>
 
             <h3>Реализация</h3>
             <content>
-              <iframe
-                src="./assigment2/index.html"
-                width="250px"
-                height="250px"
-              ></iframe>
+              <iframe src="./assigment4/index.html"></iframe>
             </content>
           </article>
         </div>
