@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Найди фигуру - Рейтинг</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="leaderboard-body">
+    <div class="leaderboard-layout">
+        <div class="leaderboards-section">
+            <h1 class="page-title">РЕЙТИНГ ЛИДЕРОВ</h1>
+            
+            <div class="leaderboards-grid">
+                <div class="leaderboard-column">
+                    <h2 class="column-title">УРОВЕНЬ 1</h2>
+                    <div class="leaderboard-list" id="leaderboard-level1"></div>
+                </div>
+
+                <div class="leaderboard-column">
+                    <h2 class="column-title">УРОВЕНЬ 2</h2>
+                    <div class="leaderboard-list" id="leaderboard-level2"></div>
+                </div>
+
+                <div class="leaderboard-column">
+                    <h2 class="column-title">УРОВЕНЬ 3</h2>
+                    <div class="leaderboard-list" id="leaderboard-level3"></div>
+                </div>
+
+                <div class="leaderboard-column overall">
+                    <h2 class="column-title overall-title">ОБЩИЙ РЕЙТИНГ</h2>
+                    <div class="leaderboard-list" id="leaderboard-overall"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="side-panel">
+            <div class="panel-content">
+                <h2 class="panel-title">МЕНЮ</h2>
+                
+                <div id="personalStats" class="info-section stats-section">
+                    <div class="info-label">Ваша статистика</div>
+                    <div id="personalStatsContent" class="stats-content"></div>
+                </div>
+
+                <div class="panel-divider"></div>
+
+                <div class="panel-buttons">
+                    <button id="playAgainButton" class="panel-button primary">ИГРАТЬ СНОВА</button>
+                    <button id="selectLevelButton" class="panel-button">ВЫБРАТЬ УРОВЕНЬ</button>
+                    <button id="changeNameButton" class="panel-button">СМЕНИТЬ ИМЯ</button>
+                    <button id="backButton" class="panel-button">НА ГЛАВНУЮ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="levelSelectModal" class="modal hidden">
+        <div class="modal-content">
+            <h2>ВЫБЕРИТЕ УРОВЕНЬ</h2>
+            <div id="levelButtons"></div>
+            <button id="closeLevelSelect" class="gold-button">ЗАКРЫТЬ</button>
+        </div>
+    </div>
+
+    <script src="js/utils/Utils.js"></script>
+    <script src="js/core/Auth.js"></script>
+    <script src="js/core/Storage.js"></script>
+    <script>
+        const auth = new Auth();
+        const storage = new Storage();
+
+        function loadData() {
+            const username = auth.getCurrentUser();
+            
+            if (username) {
+                const playerData = storage.getPlayerData(username);
+                const rank = storage.getPlayerRank(username);
+                
+                let statsHTML = `
+                    <div class="stat-row"><span class="stat-key">Игрок:</span> <span class="stat-val">${username}</span></div>
+                    <div class="stat-row"><span class="stat-key">Рекорд:</span> <span class="stat-val">${playerData.highScore}</span></div>
+                    <div class="stat-row"><span class="stat-key">Средний:</span> <span class="stat-val">${playerData.averageScore}</span></div>
+                    <div class="stat-row"><span class="stat-key">Игр:</span> <span class="stat-val">${playerData.totalGamesPlayed}</span></div>
+                    <div class="stat-row"><span class="stat-key">Уровни:</span> <span class="stat-val">${playerData.levelsUnlocked}/3</span></div>
+                `;
+                
+                if (rank) {
+                    statsHTML += `<div class="stat-row highlight"><span class="stat-key">Место:</span> <span class="stat-val">${rank}</span></div>`;
+                }
+                
+                document.getElementById('personalStatsContent').innerHTML = statsHTML;
+            } else {
+                document.getElementById('personalStats').style.display = 'none';
+            }
+
+            loadLeaderboard('level1', 'level1');
+            loadLeaderboard('level2', 'level2');
+            loadLeaderboard('level3', 'level3');
+            loadLeaderboard('overall', 'overall');
+        }
+
+        function loadLeaderboard(elementId, type) {
+            const username = auth.getCurrentUser();
+            const container = document.getElementById(`leaderboard-${elementId}`);
+            
+            let leaderboardData = [];
+            
+            if (type === 'overall') {
+                leaderboardData = storage.getLeaderboard();
+            } else {
+                leaderboardData = storage.getLevelLeaderboard(type);
+            }
+
+            if (leaderboardData.length === 0) {
+                container.innerHTML = '<div class="no-data">Нет данных</div>';
+                return;
+            }
+
+            let html = '';
+            leaderboardData.slice(0, 10).forEach((entry, index) => {
+                const isCurrentUser = entry.username === username;
+                const itemClass = isCurrentUser ? 'leaderboard-item current-user' : 'leaderboard-item';
+                
+                let rankDisplay = index + 1;
+                if (index === 0) rankDisplay = '🥇';
+                else if (index === 1) rankDisplay = '🥈';
+                else if (index === 2) rankDisplay = '🥉';
+
+                html += `
+                    <div class="${itemClass}">
+                        <span class="rank">${rankDisplay}</span>
+                        <span class="username">${entry.username}</span>
+                        <span class="score">${entry.score}</span>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function loadLevelButtons() {
+            const username = auth.getCurrentUser();
+            if (!username) return;
+
+            const unlockedLevels = storage.getUnlockedLevels(username);
+            const levelButtonsContainer = document.getElementById('levelButtons');
+            levelButtonsContainer.innerHTML = '';
+
+            for (let i = 1; i <= 3; i++) {
+                const button = document.createElement('button');
+                button.className = 'gold-button';
+                button.textContent = `Уровень ${i}`;
+                
+                if (i > unlockedLevels) {
+                    button.disabled = true;
+                    button.classList.add('disabled');
+                    button.textContent += ' (Заблокирован)';
+                } else {
+                    button.addEventListener('click', () => {
+                        window.location.href = `game.html?level=${i}`;
+                    });
+                }
+                
+                levelButtonsContainer.appendChild(button);
+            }
+        }
+
+        loadData();
+        loadLevelButtons();
+
+        document.getElementById('playAgainButton').addEventListener('click', () => {
+            if (!auth.isAuthenticated()) {
+                window.location.href = 'index.html';
+            } else {
+                window.location.href = 'game.html?level=1';
+            }
+        });
+
+        document.getElementById('changeNameButton').addEventListener('click', () => {
+            auth.logout();
+            window.location.href = 'index.html';
+        });
+
+        document.getElementById('selectLevelButton').addEventListener('click', () => {
+            if (!auth.isAuthenticated()) {
+                window.location.href = 'index.html';
+            } else {
+                document.getElementById('levelSelectModal').classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('backButton').addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+
+        document.getElementById('closeLevelSelect').addEventListener('click', () => {
+            document.getElementById('levelSelectModal').classList.add('hidden');
+        });
+    </script>
+</body>
+</html>

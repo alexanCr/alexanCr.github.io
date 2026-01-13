@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Найди фигуру</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="title-box">
+            <h1 class="game-title">НАЙДИ ФИГУРУ</h1>
+        </div>
+
+        <div class="auth-box">
+            <div class="input-group">
+                <input type="text" id="usernameInput" class="gold-input" placeholder="Введите ваше имя" maxlength="20">
+                <div id="errorMessage" class="error-message hidden"></div>
+            </div>
+
+            <button id="startButton" class="gold-button">НАЧАТЬ ИГРУ</button>
+            <button id="leaderboardButton" class="gold-button">РЕЙТИНГ</button>
+            <button id="instructionsButton" class="gold-button">ИНСТРУКЦИЯ</button>
+        </div>
+
+        <div id="instructionsModal" class="modal hidden">
+            <div class="modal-content">
+                <h2>ИНСТРУКЦИЯ</h2>
+                <div class="instructions">
+                    <h3>Уровень 1: Кликни правильную фигуру</h3>
+                    <p>• Кликайте на фигуры, соответствующие заданию</p>
+                    <p>• Используйте клавиши 1-9 для быстрого выбора</p>
+                    <p>• Нажмите Enter для проверки ответа</p>
+                    <p>• Время: 60 секунд</p>
+                    
+                    <h3>Уровень 2: Перетащи и сгруппируй</h3>
+                    <p>• Перетаскивайте фигуры в указанные зоны</p>
+                    <p>• Двойной клик для авто-группировки</p>
+                    <p>• Фигуры медленно движутся</p>
+                    <p>• Время: 60 секунд</p>
+                    
+                    <h3>Уровень 3: Текст против Цвета</h3>
+                    <p>• Цветные круги с текстом внутри</p>
+                    <p>• ВНИМАНИЕ: Текст может врать о цвете!</p>
+                    <p>• Читайте задание: искать по цвету или по тексту?</p>
+                    <p>• Некоторые фигуры мерцают</p>
+                    <p>• Время: 60 секунд</p>
+                    
+                    <h3>Управление</h3>
+                    <p>• ESC - пауза или закрыть меню</p>
+                    <p>• Enter - проверить ответ</p>
+                    <p>• Клавиши 1-9 - быстрый выбор (Уровень 1)</p>
+                </div>
+                <button id="closeInstructions" class="gold-button">ЗАКРЫТЬ</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/utils/Utils.js"></script>
+    <script src="js/core/Auth.js"></script>
+    <script src="js/core/Storage.js"></script>
+    <script>
+        const auth = new Auth();
+        const storage = new Storage();
+
+        if (auth.isAuthenticated()) {
+            document.getElementById('usernameInput').value = auth.getCurrentUser();
+        }
+
+        document.getElementById('startButton').addEventListener('click', () => {
+            const username = document.getElementById('usernameInput').value.trim();
+            const result = auth.login(username);
+
+            if (result.success) {
+                window.location.href = 'game.html';
+            } else {
+                const errorEl = document.getElementById('errorMessage');
+                errorEl.textContent = result.error;
+                errorEl.classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('usernameInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('startButton').click();
+            }
+        });
+
+        document.getElementById('leaderboardButton').addEventListener('click', () => {
+            window.location.href = 'leaderboard.html';
+        });
+
+        document.getElementById('instructionsButton').addEventListener('click', () => {
+            document.getElementById('instructionsModal').classList.remove('hidden');
+        });
+
+        document.getElementById('closeInstructions').addEventListener('click', () => {
+            document.getElementById('instructionsModal').classList.add('hidden');
+        });
+
+        document.getElementById('usernameInput').addEventListener('input', () => {
+            document.getElementById('errorMessage').classList.add('hidden');
+        });
+    </script>
+</body>
+</html>

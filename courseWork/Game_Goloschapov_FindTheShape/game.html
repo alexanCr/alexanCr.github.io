@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Найди фигуру - Игра</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="game-body">
+    <div id="cheatButton" class="cheat-button">Читы</div>
+
+    <div id="cheatModal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Читы</h2>
+            <button class="gold-button" onclick="game.cheatAddPoints()">+100 очков</button>
+            <button class="gold-button" onclick="game.cheatAddTime()">+30 секунд</button>
+            <button class="gold-button" onclick="game.cheatSkipQuestion()">Пропустить вопрос</button>
+            <button class="gold-button" onclick="game.cheatGoToLevel(1)">Перейти к уровню 1</button>
+            <button class="gold-button" onclick="game.cheatGoToLevel(2)">Перейти к уровню 2</button>
+            <button class="gold-button" onclick="game.cheatGoToLevel(3)">Перейти к уровню 3</button>
+            <button id="closeCheat" class="gold-button">ЗАКРЫТЬ <span class="key-hint">(ESC)</span></button>
+        </div>
+    </div>
+
+    <div id="pauseOverlay" class="modal hidden">
+        <div class="modal-content">
+            <h2>ПАУЗА</h2>
+            <button id="resumeButton" class="gold-button">ПРОДОЛЖИТЬ <span class="key-hint">(ESC)</span></button>
+            <button id="quitButton" class="gold-button">ВЫЙТИ</button>
+        </div>
+    </div>
+
+    <div class="game-layout">
+        <div class="canvas-section">
+            <div class="question-box">
+                <div id="questionText" class="question-text">Загрузка...</div>
+                <div id="progressText" class="progress-text">Вопрос 1 из 5</div>
+            </div>
+            
+            <canvas id="gameCanvas" width="1200" height="700"></canvas>
+        </div>
+
+        <div class="side-panel">
+            <h2 class="panel-title">ИНФОРМАЦИЯ</h2>
+            
+            <div class="info-section">
+                <div class="info-label">Уровень</div>
+                <div id="levelText" class="info-value">1 из 3</div>
+            </div>
+
+            <div class="info-section">
+                <div class="info-label">Очки</div>
+                <div id="scoreText" class="info-value">0</div>
+            </div>
+
+            <div class="info-section timer-section">
+                <div class="info-label">Время</div>
+                <div id="timerText" class="info-value timer-value">60.00</div>
+            </div>
+
+            <div class="panel-divider"></div>
+
+            <div class="panel-buttons">
+                <button id="checkButton" class="panel-button primary">ПРОВЕРИТЬ ОТВЕТ <span class="key-hint">(Enter)</span></button>
+                <button id="pauseButton" class="panel-button">ПАУЗА <span class="key-hint">(ESC)</span></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/utils/Utils.js"></script>
+    <script src="js/utils/Animations.js"></script>
+    <script src="js/shapes/Shape.js"></script>
+    <script src="js/shapes/Circle.js"></script>
+    <script src="js/shapes/Square.js"></script>
+    <script src="js/shapes/Triangle.js"></script>
+    <script src="js/shapes/Pentagon.js"></script>
+    <script src="js/shapes/Hexagon.js"></script>
+    <script src="js/shapes/Star.js"></script>
+    <script src="js/core/Auth.js"></script>
+    <script src="js/core/Storage.js"></script>
+    <script src="js/core/Timer.js"></script>
+    <script src="js/core/ScoreManager.js"></script>
+    <script src="js/core/Renderer.js"></script>
+    <script src="js/core/LevelManager.js"></script>
+    <script src="js/core/GameLogic.js"></script>
+
+    <script>
+        const auth = new Auth();
+        if (!auth.isAuthenticated()) {
+            window.location.href = 'index.html';
+        }
+
+        let game;
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            game = new GameLogic();
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const level = parseInt(urlParams.get('level')) || 1;
+            
+            const storage = new Storage();
+            const unlockedLevels = storage.getUnlockedLevels(auth.getCurrentUser());
+            
+            if (level > unlockedLevels) {
+                alert(`Уровень ${level} ещё не разблокирован!`);
+                window.location.href = `game.html?level=1`;
+            } else {
+                game.startGame(level);
+            }
+
+            document.getElementById('checkButton').addEventListener('click', () => {
+                game.checkAnswer();
+            });
+
+            document.getElementById('pauseButton').addEventListener('click', () => {
+                game.togglePause();
+            });
+
+            document.getElementById('resumeButton').addEventListener('click', () => {
+                game.togglePause();
+            });
+
+            document.getElementById('quitButton').addEventListener('click', () => {
+                window.location.href = 'index.html';
+            });
+
+            document.getElementById('cheatButton').addEventListener('click', () => {
+                document.getElementById('cheatModal').classList.remove('hidden');
+                if (game && !game.isPaused && !game.isGameOver) {
+                    game.timer.pause();
+                    game.isPaused = true;
+                }
+            });
+
+            document.getElementById('closeCheat').addEventListener('click', () => {
+                document.getElementById('cheatModal').classList.add('hidden');
+                if (game && game.isPaused && !game.isGameOver) {
+                    game.timer.resume();
+                    game.isPaused = false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
